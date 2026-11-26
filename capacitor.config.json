@@ -1,0 +1,11 @@
+{
+  "appId": "io.github.danieltolosalopezops.pueblodeldia",
+  "appName": "Pueblo del Día",
+  "webDir": "public",
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_aviso",
+      "iconColor": "#C8362B"
+    }
+  }
+}

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Pueblo del Día · Adivina el pueblo por su silueta</title>
+  <meta name="description" content="Cada día, la silueta de un pueblo o ciudad de España. Tienes 6 intentos: cada fallo te dice a cuántos kilómetros y en qué dirección está.">
+  <meta name="theme-color" content="#E8EDE0">
+  <meta property="og:title" content="Pueblo del Día">
+  <meta property="og:description" content="¿Sabes qué pueblo de España es por su silueta? Un reto nuevo cada día.">
+  <meta property="og:image" content="icons/icon-512.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="cabecera">
+    <h1 class="marca">Pueblo del Día <span id="numero"></span></h1>
+    <div class="botones-cabecera">
+      <button class="icono" type="button" id="btn-ayuda" aria-label="Cómo se juega"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.6v.6M12 17h.01"/></svg></button>
+      <button class="icono" type="button" id="btn-estadisticas" aria-label="Estadísticas"><svg viewBox="0 0 24 24"><path d="M5 20V11M12 20V4M19 20v-6"/></svg></button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hoja-mapa" aria-label="Silueta del pueblo de hoy">
+      <svg id="silueta" viewBox="-6 -6 112 112" role="img" aria-label="Silueta del pueblo de hoy"></svg>
+      <svg class="rosa" viewBox="0 0 24 34" aria-hidden="true"><path d="M12 2l5 14h-10z" fill="currentColor"/><path d="M12 30l-5-14h10z" fill="none" stroke="currentColor" stroke-width="1.2"/><text x="12" y="34" text-anchor="middle">N</text></svg>
+      <p class="cargando" id="cargando">Desplegando el mapa…</p>
+    </section>
+
+    <ul class="pistas" id="pistas" aria-live="polite"></ul>
+
+    <form class="adivinar" id="form-adivinar" autocomplete="off">
+      <label class="oculto" for="entrada">Escribe un municipio</label>
+      <div class="caja-entrada">
+        <input type="text" id="entrada" placeholder="Escribe un municipio" enterkeyhint="go" autocapitalize="words" spellcheck="false"
+          role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="sugerencias">
+        <ul class="sugerencias" id="sugerencias" role="listbox" hidden></ul>
+      </div>
+      <button class="boton" type="submit" id="btn-adivinar">Probar</button>
+    </form>
+
+    <ol class="intentos" id="intentos" aria-label="Tus intentos"></ol>
+
+    <section class="final" id="final" hidden aria-live="polite"></section>
+  </main>
+
+  <dialog id="dlg-ayuda" class="dialogo">
+    <form method="dialog">
+      <h2>Cómo se juega</h2>
+      <p>Cada día hay un pueblo o ciudad de España escondido detrás de su silueta, la forma de su término municipal.</p>
+      <ul>
+        <li>Tienes <b>6 intentos</b>. Puedes escribir cualquier municipio de España.</li>
+        <li>Cada fallo te dice <b>a cuántos kilómetros</b> está el pueblo, <b>hacia dónde</b> (la flecha) y <b>lo cerca</b> que te has quedado.</li>
+        <li>Si fallas, irás desbloqueando pistas: su tamaño, su comunidad y su provincia.</li>
+        <li>A medianoche sale un pueblo nuevo. Comparte tu resultado sin desvelar la respuesta.</li>
+      </ul>
+      <p class="nota">Límites municipales: Instituto Geográfico Nacional (CNIG), tratados con es-atlas.</p>
+      <p class="nota"><a href="privacy.html">Privacidad</a>: no recogemos ningún dato; tus partidas se guardan en tu dispositivo.</p>
+      <button class="boton" value="ok">A jugar</button>
+    </form>
+  </dialog>
+
+  <dialog id="dlg-estadisticas" class="dialogo">
+    <form method="dialog">
+      <h2>Tus estadísticas</h2>
+      <div id="estadisticas"></div>
+      <label class="casilla" id="fila-aviso" hidden><input type="checkbox" id="aviso-diario"><span>Avísame cada día a las 9:00 cuando haya pueblo nuevo</span></label>
+      <button class="boton" value="ok">Cerrar</button>
+    </form>
+  </dialog>
+
+  <div class="aviso-flotante" id="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+# Genera los datos del juego (municipios, siluetas y orden de los pueblos del día) a partir de los
+# límites municipales oficiales del IGN, los guarda en public/datos y vuelve a publicar la web y la app.
+# Se lanza sola cuando cambia la lista de pueblos o el generador, o a mano desde la pestaña Actions.
+name: Generar los pueblos
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/pueblos.mjs'
+      - 'scripts/datos.mjs'
+      - 'public/juego.js'
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: datos
+  cancel-in-progress: false
+
+jobs:
+  datos:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Pruebas
+        run: node --test test/*.test.mjs
+
+      - name: Límites municipales del IGN con más detalle (es-atlas desde la fuente)
+        id: detalle
+        continue-on-error: true
+        timeout-minutes: 20
+        run: |
+          git clone --depth 1 https://github.com/martgnz/es-atlas /tmp/es-atlas
+          cd /tmp/es-atlas
+          node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('package.json'));p.config.simplification=2e-6;p.config.quantization=100000;fs.writeFileSync('package.json',JSON.stringify(p,null,2))"
+          npm install --no-audit --no-fund
+          test -s es/municipalities.json
+          cp es/municipalities.json /tmp/municipalities.json
+          ls -la /tmp/municipalities.json
+
+      - name: Si lo anterior falla, versión ya preparada de es-atlas (algo menos detallada)
+        if: steps.detalle.outcome != 'success'
+        run: |
+          mkdir -p /tmp/esa && cd /tmp/esa
+          npm init -y > /dev/null
+          npm install es-atlas --no-audit --no-fund
+          cp node_modules/es-atlas/es/municipalities.json /tmp/municipalities.json
+          ls -la /tmp/municipalities.json
+
+      - name: Generar los datos del juego
+        run: node scripts/datos.mjs /tmp/municipalities.json public/datos
+
+      - name: Guardar los datos y volver a publicar
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/datos
+          if git diff --cached --quiet; then
+            echo "Los datos no han cambiado."
+          else
+            git commit -m "Datos: pueblos del día actualizados"
+            git push
+          fi
+          # Los cambios que sube GitHub Actions no lanzan otros workflows por sí solos: se lanzan aquí.
+          gh workflow run web.yml --ref main
+          gh workflow run android.yml --ref main
