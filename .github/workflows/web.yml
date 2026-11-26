@@ -1,22 +1,25 @@
 # Cada vez que cambia el código: comprueba que todo funciona y publica la web en GitHub Pages. Coste: 0 €.
+# La web se publica copiando public/ a la rama gh-pages (GitHub Pages → «Implementar desde una rama»: gh-pages).
+# Así no hace falta tocar ningún ajuste del repositorio.
 name: Probar y publicar la web
 
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'store/**'
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
-  group: pages
+  group: web
   cancel-in-progress: false
 
 jobs:
-  build:
+  web:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -29,19 +32,23 @@ jobs:
       - name: Pruebas
         run: node --test test/*.test.mjs
 
-
-      - uses: actions/configure-pages@v5
-
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: public
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Publicar en GitHub Pages (rama gh-pages)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          URL="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          if git clone --quiet --depth 1 --branch gh-pages "$URL" /tmp/web; then
+            find /tmp/web -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          else
+            mkdir -p /tmp/web && git -C /tmp/web init --quiet -b gh-pages && git -C /tmp/web remote add origin "$URL"
+          fi
+          cp -a public/. /tmp/web/
+          touch /tmp/web/.nojekyll
+          cd /tmp/web
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then echo "La web no ha cambiado."; exit 0; fi
+          git commit --quiet -m "Web publicada desde ${GITHUB_SHA::7}"
+          git push --quiet origin gh-pages
+          echo "Publicada en https://${GITHUB_REPOSITORY_OWNER,,}.github.io/${GITHUB_REPOSITORY#*/}/"

@@ -35,8 +35,9 @@ store/             FICHA.md (textos de las tiendas), iconos, imagen destacada y 
 
 ## Puesta en marcha (una sola vez)
 
-1. *Settings → Pages → Build and deployment → Source:* **GitHub Actions**.
-2. La primera vez, espera a que termine **Generar los pueblos** (unos 10 minutos): después se publican la web y la app con los datos.
+No hay que configurar nada: la web se publica sola (workflow **Probar y publicar la web**, que copia `public/` a la rama `gh-pages`). En *Settings → Pages* debe quedar «Implementar desde una rama» → `gh-pages` / `(root)` (se pone solo la primera vez); no lo cambies a «GitHub Actions».
+
+La primera vez, espera a que termine **Generar los pueblos** (unos 10 minutos): después se publican la web y la app con los datos.
 
 ## App de Android (sin Android Studio)
 
