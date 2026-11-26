@@ -98,7 +98,7 @@ for (const m of municipios) for (const v of variantes(m[1])) indice.set(`${m[2]}
 const elegibles = [];
 const noEncontrados = [];
 for (const p of PUEBLOS) {
-  const codigo = p.nombres.map((n) => indice.get(`${p.prov}:${normalizar(n)}`)).find(Boolean);
+  const codigo = p.nombres.flatMap((n) => variantes(n)).map((v) => indice.get(`${p.prov}:${v}`)).find(Boolean);
   if (codigo) { if (!elegibles.includes(codigo)) elegibles.push(codigo); } else noEncontrados.push(`${p.nombres[0]} (${p.prov})`);
 }
 

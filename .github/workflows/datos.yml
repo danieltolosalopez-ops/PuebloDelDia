@@ -34,21 +34,32 @@ jobs:
       - name: Pruebas
         run: node --test test/*.test.mjs
 
-      - name: Límites municipales del IGN con más detalle (es-atlas desde la fuente)
+      - name: Límites municipales del IGN con más detalle (es-atlas desde la fuente del CNIG)
         id: detalle
-        continue-on-error: true
-        timeout-minutes: 20
+        timeout-minutes: 25
         run: |
-          git clone --depth 1 https://github.com/martgnz/es-atlas /tmp/es-atlas
-          cd /tmp/es-atlas
-          node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('package.json'));p.config.simplification=2e-6;p.config.quantization=100000;fs.writeFileSync('package.json',JSON.stringify(p,null,2))"
-          npm install --no-audit --no-fund
-          test -s es/municipalities.json
-          cp es/municipalities.json /tmp/municipalities.json
-          ls -la /tmp/municipalities.json
+          set +e
+          (
+            set -e
+            git clone --depth 1 https://github.com/martgnz/es-atlas /tmp/es-atlas
+            cd /tmp/es-atlas
+            node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('package.json'));p.config.simplification=2e-6;p.config.quantization=100000;fs.writeFileSync('package.json',JSON.stringify(p,null,2))"
+            # La descarga del CNIG es grande y a veces se corta: reintentos y a un archivo (no a la salida estándar).
+            sed -i -e 's#curl "https://centrodedescargas.cnig.es#curl --fail --retry 6 --retry-all-errors --retry-delay 30 --http1.1 -o build/lineas_limite.zip "https://centrodedescargas.cnig.es#' -e 's# > build/lineas_limite.zip##' prepublish
+            grep -n "curl" prepublish
+            npm install --no-audit --no-fund
+            test -s es/municipalities.json
+            cp es/municipalities.json /tmp/municipalities.json
+          )
+          if [ $? -eq 0 ]; then
+            echo "ok=1" >> "$GITHUB_OUTPUT"
+            ls -la /tmp/municipalities.json
+          else
+            echo "::notice::No se pudo descargar el mapa detallado del CNIG. Se usa la versión preparada de es-atlas (siluetas algo más simples)."
+          fi
 
       - name: Si lo anterior falla, versión ya preparada de es-atlas (algo menos detallada)
-        if: steps.detalle.outcome != 'success'
+        if: steps.detalle.outputs.ok != '1'
         run: |
           mkdir -p /tmp/esa && cd /tmp/esa
           npm init -y > /dev/null

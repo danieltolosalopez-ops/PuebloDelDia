@@ -4,7 +4,7 @@
 export const PUEBLOS = `
 Vitoria-Gasteiz|Vitoria 01; Llodio|Laudio 01; Laguardia|Guardia 01
 Albacete 02; Hellín 02; Villarrobledo 02; Almansa 02; La Roda|Roda, La 02; Alcaraz 02
-Alicante|Alacant 03; Elche|Elx 03; Torrevieja 03; Orihuela 03; Benidorm 03; Alcoy|Alcoi 03; Elda 03; San Vicente del Raspeig|Sant Vicent del Raspeig 03; Dénia 03; Villena 03; Jávea|Xàbia 03; Altea 03; Calpe|Calp 03; Guadalest|Castell de Guadalest, el 03; Santa Pola 03; Novelda 03; Petrer 03; Villajoyosa|Vila Joiosa, la 03
+Alicante|Alacant 03; Elche|Elx 03; Torrevieja 03; Orihuela 03; Benidorm 03; Alcoy|Alcoi 03; Elda 03; San Vicente del Raspeig|Sant Vicent del Raspeig 03; Dénia 03; Villena 03; Jávea|Xàbia 03; Altea 03; Calpe|Calp 03; Guadalest|el Castell de Guadalest|Castell de Guadalest, el 03; Santa Pola 03; Novelda 03; Petrer 03; Villajoyosa|Vila Joiosa, la 03
 Almería 04; Roquetas de Mar 04; El Ejido|Ejido, El 04; Níjar 04; Vera 04; Mojácar 04; Adra 04; Huércal-Overa 04
 Ávila 05; Arenas de San Pedro 05; Arévalo 05; Piedrahíta 05
 Badajoz 06; Mérida 06; Don Benito 06; Almendralejo 06; Villanueva de la Serena 06; Zafra 06; Olivenza 06; Jerez de los Caballeros 06; Llerena 06
@@ -41,9 +41,9 @@ Vigo 36; Pontevedra 36; Vilagarcía de Arousa 36; Redondela 36; Cangas 36; Marí
 Salamanca 37; Béjar 37; Ciudad Rodrigo 37; Santa Marta de Tormes 37; Alba de Tormes 37; La Alberca|Alberca, La 37; Ledesma 37
 Santa Cruz de Tenerife 38; San Cristóbal de La Laguna|San Cristóbal de la Laguna 38; Arona 38; Adeje 38; La Orotava|Orotava, La 38; Granadilla de Abona 38; Los Realejos|Realejos, Los 38; Puerto de la Cruz 38; Santa Cruz de la Palma 38; Los Llanos de Aridane|Llanos de Aridane, Los 38; Icod de los Vinos 38; San Sebastián de la Gomera 38; Valverde 38; Candelaria 38; Garachico 38; Guía de Isora 38
 Santander 39; Torrelavega 39; Castro-Urdiales 39; Camargo 39; Piélagos 39; Laredo 39; Santillana del Mar 39; Comillas 39; San Vicente de la Barquera 39; Santoña 39; Reinosa 39; Potes 39; Noja 39; Suances 39
-Segovia 40; Cuéllar 40; San Ildefonso 40; El Espinar|Espinar, El 40; Sepúlveda 40; Pedraza 40; Riaza 40
+Segovia 40; Cuéllar 40; San Ildefonso|Real Sitio de San Ildefonso 40; El Espinar|Espinar, El 40; Sepúlveda 40; Pedraza 40; Riaza 40
 Sevilla 41; Dos Hermanas 41; Alcalá de Guadaíra 41; Utrera 41; Mairena del Aljarafe 41; Écija 41; La Rinconada|Rinconada, La 41; Los Palacios y Villafranca|Palacios y Villafranca, Los 41; Carmona 41; Osuna 41; Estepa 41; Lebrija 41; Marchena 41; Morón de la Frontera 41; Coria del Río 41; Tomares 41
-Soria 42; Almazán 42; El Burgo de Osma-Ciudad de Osma|Burgo de Osma-Ciudad de Osma, El 42; Medinaceli 42; Ágreda 42; San Leonardo de Yagüe 42
+Soria 42; Almazán 42; El Burgo de Osma-Ciudad de Osma|Burgo de Osma-Ciudad de Osma 42; Medinaceli 42; Ágreda 42; San Leonardo de Yagüe 42
 Tarragona 43; Reus 43; Tortosa 43; El Vendrell|Vendrell, El 43; Cambrils 43; Salou 43; Valls 43; Amposta 43; Calafell 43; Deltebre 43; Montblanc 43; Falset 43; Sant Carles de la Ràpita|La Ràpita|Ràpita, La 43
 Teruel 44; Alcañiz 44; Andorra 44; Calamocha 44; Albarracín 44; Valderrobres 44; Mora de Rubielos 44; Utrillas 44
 Toledo 45; Talavera de la Reina 45; Illescas 45; Seseña 45; Torrijos 45; Consuegra 45; Ocaña 45; Quintanar de la Orden 45; Madridejos 45; Oropesa 45; Tembleque 45; Escalona 45
