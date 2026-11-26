@@ -115,4 +115,12 @@ open(os.path.join(res, 'drawable/splash.xml'), 'w').write('''<?xml version="1.0"
     <item android:width="144dp" android:height="144dp" android:gravity="center" android:drawable="@drawable/splash_logo"/>
 </layer-list>
 ''')
+# ---- iPhone: pantalla de inicio (2732 x 2732, se recorta al centro en cada pantalla) ----
+os.makedirs(os.path.join(app, 'ios-res'), exist_ok=True)
+lado = 2732
+fondo_ios = Image.new('RGBA', (lado, lado), hex2rgb(FONDO) + (255,))
+logo = pp.resize((560, 560), Image.LANCZOS)
+fondo_ios.alpha_composite(logo, ((lado - 560) // 2, (lado - 560) // 2))
+fondo_ios.convert('RGB').save(os.path.join(app, 'ios-res/splash-2732x2732.png'), optimize=True)
+
 print('Iconos generados en', app)

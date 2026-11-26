@@ -42,6 +42,16 @@ const cdp = (method, params = {}) => new Promise((r) => { const id = ++n; pendie
 await cdp('Runtime.enable'); await cdp('Log.enable'); await cdp('Page.enable');
 await cdp('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
 await cdp('Emulation.setTouchEmulationEnabled', { enabled: true });
+// NATIVO=1: la página cree que es la app de Android (Capacitor) con plugins de imitación.
+if (process.env.NATIVO) {
+  const falso = await readFile(new URL('./nativo-falso.js', import.meta.url), 'utf8');
+  await cdp('Page.addScriptToEvaluateOnNewDocument', { source: falso });
+}
+// TAMANO=ancho x alto x escala (por ejemplo 440x956x3 para capturas de App Store).
+if (process.env.TAMANO) {
+  const [w, h, k] = process.env.TAMANO.split('x').map(Number);
+  await cdp('Emulation.setDeviceMetricsOverride', { width: w, height: h, deviceScaleFactor: k, mobile: true });
+}
 
 const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
 const js = async (expr) => {
@@ -59,7 +69,8 @@ const api = {
     let clip;
     if (completa) {
       const alto = await js('document.documentElement.scrollHeight');
-      clip = { x: 0, y: 0, width: 390, height: Math.min(alto, 6000), scale: 1 };
+      const ancho = await js('innerWidth');
+      clip = { x: 0, y: 0, width: ancho, height: Math.min(alto, 6000), scale: 1 };
     }
     const r = await cdp('Page.captureScreenshot', { format: 'png', captureBeyondViewport: !!completa, ...(clip ? { clip } : {}) });
     const { writeFile } = await import('node:fs/promises');

@@ -26,10 +26,11 @@ public/            el juego (HTML, CSS y JavaScript sin librerías)
   juego.js         reglas: distancias, direcciones, búsqueda, pistas, compartir, estadísticas
   app.js           interfaz
   datos/           generado por GitHub (no editar a mano)
-scripts/           pueblos.mjs (lista), datos.mjs (generador), android.mjs, iconos.py
+scripts/           pueblos.mjs (lista), datos.mjs (generador), android.mjs, ios.mjs, iconos.py
 test/              pruebas (node --test test/*.test.mjs) con un mapa de prueba (fixture.mjs) y recorrido visual
 android-res/       iconos y pantalla de inicio de Android
-store/             imágenes para la ficha de Google Play
+ios-res/           pantalla de inicio de iPhone
+store/             FICHA.md (textos de las tiendas), iconos, imagen destacada y capturas
 ```
 
 ## Puesta en marcha (una sola vez)
@@ -70,6 +71,40 @@ Para crear una firma nueva: `keytool -genkeypair -v -keystore firma.jks -alias s
 5. Ficha de la tienda: icono `store/play-icon-512.png`, imagen destacada `store/play-destacada-1024x500.png`, 2-8 capturas hechas con el móvil, y la política de privacidad: `https://danieltolosalopez-ops.github.io/PuebloDelDia/privacy.html`.
 6. Formularios: *Seguridad de los datos* → «No se recoge ni se comparte ningún dato»; *Anuncios* → no; *Clasificación de contenido* → cuestionario (juego de preguntas, apto para todos). Categoría: Juegos → Preguntas y respuestas.
 
+
+## App de iPhone (App Store) sin Mac
+
+El workflow **App iPhone** compila la app en un Mac de GitHub (macOS 26 con Xcode 26, lo que exige App Store desde abril de 2026):
+
+- **Sin configurar nada:** en cada cambio comprueba que la app de iPhone compila.
+- **Con tu cuenta de Apple configurada:** la firma y la sube a App Store Connect. Aparece en **TestFlight** y desde ahí la envías a revisión.
+
+La app es solo para iPhone y en vertical, así que App Store no pide capturas de iPad.
+
+### Lo que hay que hacer una vez (vale para todas tus apps)
+
+1. Darte de alta en el **Apple Developer Program** (99 $/año) en developer.apple.com.
+2. **App Store Connect → Usuarios y acceso → Integraciones → App Store Connect API → Generar clave**, con acceso **Admin** (lo necesita Xcode para crear los certificados él solo). Descarga el archivo `.p8` (solo se puede descargar una vez) y apunta el **Key ID** y el **Issuer ID**.
+3. Tu **Team ID**: developer.apple.com → Account → Membership details.
+4. En este repositorio, *Settings → Secrets and variables → Actions*:
+
+| Secret | Qué es |
+|---|---|
+| `APPLE_TEAM_ID` | el Team ID |
+| `ASC_KEY_ID` | el Key ID de la clave |
+| `ASC_ISSUER_ID` | el Issuer ID |
+| `ASC_KEY_P8` | el contenido completo del archivo `.p8` (desde `-----BEGIN PRIVATE KEY-----` hasta el final) |
+
+5. **App Store Connect → Apps → «+» → Nueva app**: iOS, nombre, idioma español, Bundle ID `io.github.danieltolosalopezops.pueblodeldia` y un SKU cualquiera (por ejemplo, `pueblodeldia-ios`). Si el Bundle ID aún no aparece, lanza una vez el workflow *App iPhone*: Xcode lo registra solo.
+6. *Actions → App iPhone → Run workflow*. En unos 15-20 minutos la versión aparece en TestFlight. Rellena la ficha con los textos de `store/FICHA.md`, añade las capturas de `store/capturas/iphone-6.9/` y `store/capturas/iphone-6.3/` y envía a revisión.
+
+## Ficha de las tiendas
+
+`store/FICHA.md` tiene todos los textos para Google Play y App Store (nombre, descripciones, palabras clave, categoría, URLs, respuestas de privacidad y notas para la revisión), ya ajustados a los límites de caracteres. Las capturas están en `store/capturas/` a los tamaños que piden las tiendas. Para rehacerlas: `bash test/capturas.sh public test/capturas.pasos.mjs store`. En este juego las capturas necesitan los datos reales de `public/datos`: la revisión automática las genera en cuanto GitHub haya creado los datos.
+
+## Revisión automática
+
+Una tarea programada revisa la app dos veces al día (pruebas, web publicada y compilaciones de Android e iPhone) y corrige los fallos que encuentre. Lo que hace queda anotado en `MANTENIMIENTO.md`.
 
 ## Ideas para ganar dinero más adelante
 

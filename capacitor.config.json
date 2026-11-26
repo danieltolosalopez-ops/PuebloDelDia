@@ -6,6 +6,10 @@
     "LocalNotifications": {
       "smallIcon": "ic_stat_aviso",
       "iconColor": "#C8362B"
+    },
+    "SystemBars": {
+      "insetsHandling": "css",
+      "style": "LIGHT"
     }
   }
 }

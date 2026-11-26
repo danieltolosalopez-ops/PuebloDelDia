@@ -79,6 +79,22 @@ export async function compartirTexto(texto, titulo = '') {
   try { await navigator.clipboard.writeText(texto); return 'copiado'; } catch { return 'cancelado'; }
 }
 
+// Botón «Atrás» de Android: la app decide qué cerrar (un diálogo, volver a la pestaña principal…).
+// Si el manejador devuelve false, se sale de la app como haría cualquier app nativa.
+export function alPulsarAtras(manejador) {
+  const App = plugin('App');
+  if (!App) return;
+  App.addListener('backButton', () => { if (!manejador()) App.exitApp(); });
+}
+
+// Cierra el diálogo abierto (si hay alguno). Devuelve true si ha cerrado algo.
+export function cerrarDialogoAbierto() {
+  const abiertos = [...document.querySelectorAll('dialog[open]')];
+  if (!abiertos.length) return false;
+  abiertos.at(-1).close('cancelar');
+  return true;
+}
+
 export function abrirFuera(url) {
   if (esNativa) { location.href = url; return; } // Capacitor abre los enlaces externos en el navegador del móvil
   window.open(url, '_blank', 'noopener');

@@ -10,7 +10,7 @@ export default async ({ ir, js, captura, clic, escribir, esperar }) => {
   const objetivo = await js("fetch('datos/partidas.json').then(r => r.json()).then(p => p.orden[0])");
   const mun = await js("fetch('datos/municipios.json').then(r => r.json()).then(d => d.m)");
   const nombre = (c) => mun.find((m) => m[0] === c)[1];
-  const fallos = ['Barcelona', 'Sevilla', 'Palma', 'Villaprueba 12'].filter((n) => n !== nombre(objetivo)).slice(0, 3);
+  const fallos = ['Barcelona', 'Sevilla', 'Palma', 'Toledo'].filter((n) => n !== nombre(objetivo)).slice(0, 3);
   for (const f of fallos) {
     await escribir('#entrada', f);
     await esperar(200);

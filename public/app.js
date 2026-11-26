@@ -2,7 +2,7 @@ import {
   INTENTOS, PROVINCIAS, COMUNIDADES, buscar, evaluar, numeroDelDia, codigoDelDia, pistas, textoCompartir,
   actualizarEstadisticas, direccion,
 } from './juego.js';
-import { esNativa, avisoDiario, permisoAvisos, compartirTexto, abrirFuera, registrarSW } from './native.js';
+import { esNativa, avisoDiario, permisoAvisos, compartirTexto, abrirFuera, registrarSW, alPulsarAtras, cerrarDialogoAbierto } from './native.js';
 
 const URL_JUEGO = 'https://danieltolosalopez-ops.github.io/PuebloDelDia/';
 const $ = (s) => document.querySelector(s);
@@ -218,5 +218,9 @@ $('#aviso-diario').addEventListener('change', async (e) => {
   toast(activar ? 'Te avisaremos cada día a las 9:00' : 'Aviso diario desactivado');
 });
 
+alPulsarAtras(() => {
+  if (!lista.hidden) { lista.hidden = true; return true; }
+  return cerrarDialogoAbierto();
+});
 cargar();
 registrarSW();
