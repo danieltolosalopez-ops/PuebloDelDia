@@ -164,9 +164,14 @@ function cuentaAtras() {
   const a = new Date(), m = new Date(a); m.setHours(24, 0, 0, 0);
   const s = Math.max(0, Math.floor((m - a) / 1000));
   el.textContent = `${p2(Math.floor(s / 3600))}:${p2(Math.floor((s % 3600) / 60))}:${p2(s % 60)}`;
-  if (s === 0) { location.reload(); return; }
+  if (s === 0 || otroDia()) { location.reload(); return; }
   clearTimeout(cuentaAtras.h); cuentaAtras.h = setTimeout(cuentaAtras, 1000);
 }
+
+// Si la app o la pestaña se quedan abiertas en segundo plano y cambia el día (por ejemplo, al volver a la app
+// desde el aviso de las 9:00), se carga el pueblo nuevo en vez de seguir enseñando el de ayer.
+const otroDia = () => !!estado.partida && numeroDelDia(hoyLocal()) !== estado.numero;
+document.addEventListener('visibilitychange', () => { if (!document.hidden && otroDia()) location.reload(); });
 
 async function pintarMapaFinal(animar) {
   let mapa;

@@ -7,7 +7,10 @@ export default async ({ ir, js, captura, clic, escribir, esperar }) => {
   await captura('01-ayuda');
   await js("document.querySelector('#dlg-ayuda').close()");
   await captura('02-inicio');
-  const objetivo = await js("fetch('datos/partidas.json').then(r => r.json()).then(p => p.orden[0])");
+  // El pueblo de hoy, calculado igual que la app (no siempre es el primero de la lista).
+  const objetivo = await js(`Promise.all([import(new URL('juego.js', location.href).href), fetch('datos/partidas.json').then(r => r.json())])
+    .then(([j, p]) => { const a = new Date(), d = (n) => String(n).padStart(2, '0');
+      return j.codigoDelDia(j.numeroDelDia(a.getFullYear() + '-' + d(a.getMonth() + 1) + '-' + d(a.getDate())), p.orden); })`);
   const mun = await js("fetch('datos/municipios.json').then(r => r.json()).then(d => d.m)");
   const nombre = (c) => mun.find((m) => m[0] === c)[1];
   const fallos = ['Barcelona', 'Sevilla', 'Palma', 'Toledo'].filter((n) => n !== nombre(objetivo)).slice(0, 3);
@@ -37,4 +40,10 @@ export default async ({ ir, js, captura, clic, escribir, esperar }) => {
   // Al volver a abrir, la partida terminada se mantiene
   await ir('');
   if (await js("document.querySelector('#final').hidden")) throw new Error('Al recargar se pierde la partida terminada');
+  // Si cambia el día con la app abierta en segundo plano, al volver a ella se carga el pueblo nuevo.
+  await js(`window.__sinRecargar = true; const D = Date;
+    window.Date = class extends D { constructor(...a) { super(...(a.length ? a : [D.now() + 864e5])); } static now() { return D.now() + 864e5; } };
+    document.dispatchEvent(new Event('visibilitychange')); true`);
+  await esperar(1500);
+  if (await js('window.__sinRecargar === true')) throw new Error('Al cambiar de día no se carga el pueblo nuevo');
 };
