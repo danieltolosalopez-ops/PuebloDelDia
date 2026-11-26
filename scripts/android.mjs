@@ -6,6 +6,10 @@ import { existsSync, readFileSync, writeFileSync, readdirSync, rmSync, cpSync, s
 import path from 'node:path';
 
 const sh = (c) => execSync(c, { stdio: 'inherit' });
+// Runtime de Capacitor para la app (la web no lo usa): se empaqueta con esbuild desde @capacitor/core.
+execSync('npx esbuild --bundle --format=esm --minify --log-level=warning --outfile=public/vendor/capacitor-core.js', {
+  input: "import '@capacitor/core';", stdio: ['pipe', 'inherit', 'inherit'],
+});
 if (!existsSync('android')) sh('npx cap add android');
 sh('npx cap sync android');
 
@@ -17,10 +21,20 @@ for (const dir of readdirSync(res)) {
 }
 cpSync('android-res', res, { recursive: true, force: true });
 
-// Permisos: avisos (Android 13+) y volver a programarlos al reiniciar el móvil.
+// Permisos: avisos (Android 13+), volver a programarlos al reiniciar el móvil y los propios de cada app
+// (marca/android.json: { "permisos": [...], "metadatos": { "nombre": "valor" } }).
+const extra = existsSync('marca/android.json') ? JSON.parse(readFileSync('marca/android.json', 'utf8')) : {};
 const manifestPath = 'android/app/src/main/AndroidManifest.xml';
 let manifest = readFileSync(manifestPath, 'utf8');
-for (const permiso of ['android.permission.POST_NOTIFICATIONS', 'android.permission.RECEIVE_BOOT_COMPLETED']) {
+for (const [nombre, valor] of Object.entries(extra.metadatos || {})) {
+  if (!manifest.includes(`android:name="${nombre}"`)) {
+    manifest = manifest.replace(/(<application[^>]*>)/, `$1\n        <meta-data android:name="${nombre}" android:value="${valor}" />`);
+  }
+}
+// Los permisos de avisos solo se piden si la app usa avisos (@capacitor/local-notifications).
+const usaAvisos = !!JSON.parse(readFileSync('package.json', 'utf8')).dependencies?.['@capacitor/local-notifications'];
+const avisos = usaAvisos ? ['android.permission.POST_NOTIFICATIONS', 'android.permission.RECEIVE_BOOT_COMPLETED'] : [];
+for (const permiso of [...avisos, ...(extra.permisos || [])]) {
   if (!manifest.includes(permiso)) manifest = manifest.replace('</manifest>', `    <uses-permission android:name="${permiso}" />\n</manifest>`);
 }
 writeFileSync(manifestPath, manifest);

@@ -1,8 +1,23 @@
 // Puente entre la web y la app nativa (Capacitor). En el navegador todo funciona sin estos plugins:
 // los avisos se sustituyen por "Añadir al calendario" y los archivos se descargan.
-const cap = window.Capacitor;
-export const esNativa = !!cap?.isNativePlatform?.();
-const plugin = (nombre) => (esNativa ? cap.Plugins?.[nombre] || cap.registerPlugin?.(nombre) : null);
+//
+// Dentro de la app, Capacitor necesita su runtime de JavaScript (@capacitor/core) para hablar con los plugins.
+// Se genera al compilar la app (scripts/android.mjs y scripts/ios.mjs → public/vendor/capacitor-core.js)
+// y solo se carga dentro de la app: en la web no existe ni hace falta.
+const enApp = !!(window.androidBridge || window.webkit?.messageHandlers?.bridge || window.Capacitor?.isNativePlatform?.());
+if (enApp && !window.Capacitor?.registerPlugin) {
+  try { await import('./vendor/capacitor-core.js'); } catch (e) { console.warn('No se pudo cargar Capacitor', e); }
+}
+export const esNativa = enApp || !!window.Capacitor?.isNativePlatform?.();
+const plugins = new Map();
+export function plugin(nombre) {
+  if (!esNativa) return null;
+  if (!plugins.has(nombre)) {
+    const cap = window.Capacitor;
+    plugins.set(nombre, cap?.Plugins?.[nombre] || cap?.registerPlugin?.(nombre) || null);
+  }
+  return plugins.get(nombre);
+}
 
 // ---------- Avisos (notificaciones locales, sin servidor) ----------
 export async function permisoAvisos(pedir = false) {

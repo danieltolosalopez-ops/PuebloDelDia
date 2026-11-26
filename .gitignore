@@ -1,7 +1,8 @@
 node_modules/
-android/
-ios/
+/android/
+/ios/
 salida/
 .DS_Store
 *.jks
 *.keystore
+public/vendor/

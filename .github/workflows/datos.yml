@@ -75,3 +75,5 @@ jobs:
           # Los cambios que sube GitHub Actions no lanzan otros workflows por sí solos: se lanzan aquí.
           gh workflow run web.yml --ref main
           gh workflow run android.yml --ref main
+          gh workflow run ios.yml --ref main
+          gh workflow run capturas.yml --ref main

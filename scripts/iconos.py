@@ -14,6 +14,7 @@ import json, os, subprocess, sys, tempfile
 from PIL import Image, ImageDraw
 
 app = os.path.abspath(sys.argv[1])
+SOLO_NATIVO = '--solo-nativo' in sys.argv
 marca = json.load(open(os.path.join(app, 'marca/marca.json')))
 FONDO = marca['fondo']
 tmp = tempfile.mkdtemp()
@@ -58,16 +59,17 @@ def con_fondo(img):
 
 # ---- Web ----
 os.makedirs(os.path.join(app, 'public/icons'), exist_ok=True)
-for s in (192, 512):
+for s in (() if SOLO_NATIVO else (192, 512)):
     grande.resize((s, s), Image.LANCZOS).save(os.path.join(app, f'public/icons/icon-{s}.png'))
-con_fondo(dibujo_centrado(512, 0.70)).save(os.path.join(app, 'public/icons/maskable-512.png'))
+if not SOLO_NATIVO: con_fondo(dibujo_centrado(512, 0.70)).save(os.path.join(app, 'public/icons/maskable-512.png'))
 
 # ---- Google Play ----
 os.makedirs(os.path.join(app, 'store'), exist_ok=True)
-con_fondo(dibujo_centrado(512, 0.78)).convert('RGB').save(os.path.join(app, 'store/play-icon-512.png'))
-con_fondo(dibujo_centrado(1024, 0.78)).convert('RGB').save(os.path.join(app, 'store/icon-1024.png'))
+if not SOLO_NATIVO:
+    con_fondo(dibujo_centrado(512, 0.78)).convert('RGB').save(os.path.join(app, 'store/play-icon-512.png'))
+    con_fondo(dibujo_centrado(1024, 0.78)).convert('RGB').save(os.path.join(app, 'store/icon-1024.png'))
 dest = os.path.join(app, 'marca/destacada.html')
-if os.path.exists(dest):
+if os.path.exists(dest) and not SOLO_NATIVO:
     html = open(dest).read().replace('{{PRIMER_PLANO}}', 'file://' + fg).replace('{{ICONO}}', 'file://' + icon)
     render_html(html, 1024, 500, os.path.join(tmp, 'd.png')).convert('RGB').save(os.path.join(app, 'store/play-destacada-1024x500.png'))
 

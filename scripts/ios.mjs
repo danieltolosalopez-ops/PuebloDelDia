@@ -6,6 +6,10 @@ import { existsSync, readFileSync, writeFileSync, copyFileSync } from 'node:fs';
 import path from 'node:path';
 
 const sh = (c) => execSync(c, { stdio: 'inherit' });
+// Runtime de Capacitor para la app (la web no lo usa): se empaqueta con esbuild desde @capacitor/core.
+execSync('npx esbuild --bundle --format=esm --minify --log-level=warning --outfile=public/vendor/capacitor-core.js', {
+  input: "import '@capacitor/core';", stdio: ['pipe', 'inherit', 'inherit'],
+});
 if (!existsSync('ios')) sh('npx cap add ios');
 sh('npx cap sync ios');
 
@@ -22,6 +26,11 @@ plutil('-replace', 'UISupportedInterfaceOrientations', '-json', '["UIInterfaceOr
 quitar('UISupportedInterfaceOrientations~ipad');
 plutil('-replace', 'UIStatusBarStyle', '-string', ajustes.estiloBarra || 'UIStatusBarStyleDarkContent');
 for (const [clave, texto] of Object.entries(ajustes.permisos || {})) plutil('-replace', clave, '-string', texto);
+// Otras claves de Info.plist propias de la app (por ejemplo, el identificador de AdMob).
+for (const [clave, valor] of Object.entries(ajustes.plist || {})) {
+  if (typeof valor === 'string') plutil('-replace', clave, '-string', valor);
+  else plutil('-replace', clave, '-json', JSON.stringify(valor));
+}
 
 // Solo iPhone (así App Store no pide capturas de iPad) y número de versión.
 const pbx = 'ios/App/App.xcodeproj/project.pbxproj';
