@@ -19,6 +19,8 @@ function toast(t) {
   clearTimeout(toast.h); toast.h = setTimeout(() => el.classList.remove('ver'), 2600);
 }
 const nombreCorto = (m) => m[1].includes('/') ? m[1] : m[1].replace(/^(.*), (El|La|Los|Las|L'|O|A|Os|As|Es|Sa|Ses|Els|Les)$/i, (_, a, b) => `${b}${b.endsWith("'") ? '' : ' '}${a}`);
+// En HTML, con permiso para pasar de línea tras la «/» de los nombres dobles (si no, se parten a mitad de palabra).
+const nombreHTML = (m) => esc(nombreCorto(m)).replace(/\//g, '/<wbr>');
 
 // ================= Carga =================
 async function cargar() {
@@ -115,7 +117,7 @@ function pintarIntentos(nuevo = false) {
     const m = estado.porCodigo.get(r.codigo);
     const nivel = r.acierto ? 'acierto' : r.cercania >= 80 ? 'caliente' : r.cercania >= 55 ? 'templado' : 'frio';
     filas.push(`<li class="${nivel}${nuevo && i === p.intentos.length - 1 ? ' recien' : ''}">
-      <span class="i-nombre">${esc(nombreCorto(m))}<small>${esc(PROVINCIAS[m[2]])}</small></span>
+      <span class="i-nombre">${nombreHTML(m)}<small>${esc(PROVINCIAS[m[2]])}</small></span>
       <span class="i-km">${r.acierto ? '¡Es este!' : `${r.km.toLocaleString('es-ES')} km`}</span>
       <span class="i-dir" aria-label="${r.acierto ? 'acierto' : `hacia el ${direccion(r.grados)}`}">${r.acierto ? '<svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg>'
         : `<svg viewBox="0 0 24 24" style="transform:rotate(${Math.round(r.grados)}deg)"><path d="M12 3v18M12 3l-6 6M12 3l6 6"/></svg>`}</span>
@@ -140,7 +142,7 @@ async function terminar(animar) {
   $('#silueta').classList.add('resuelta');
   fin.innerHTML = `
     <p class="resultado-titulo">${acertado ? `¡Acertaste en ${p.intentos.length} ${p.intentos.length === 1 ? 'intento' : 'intentos'}!` : 'Esta vez no ha podido ser.'}</p>
-    <h2 class="nombre-pueblo">${esc(nombreCorto(o))}</h2>
+    <h2 class="nombre-pueblo">${nombreHTML(o)}</h2>
     <p class="donde">${esc(PROVINCIAS[o[2]])}, ${esc(COMUNIDADES[o[2]])}. Unos ${estado.silueta.km2.toLocaleString('es-ES')} km² de término municipal.</p>
     <div class="mapa-final" id="mapa-final"></div>
     <div class="acciones">
