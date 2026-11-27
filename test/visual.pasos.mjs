@@ -33,6 +33,23 @@ export default async ({ ir, js, captura, clic, escribir, esperar }) => {
   await esperar(1500);
   await captura('04-final', true);
   if (await js("document.querySelector('#final').hidden")) throw new Error('No aparece la pantalla final');
+  // El nombre grande del final solo puede pasar de línea en un espacio, un guion o una barra
+  // (nombres dobles como «Peníscola/Peñíscola»), nunca a mitad de palabra.
+  const corte = await js(`(() => {
+    const h = document.querySelector('.nombre-pueblo'), r = document.createRange();
+    const tw = document.createTreeWalker(h, NodeFilter.SHOW_TEXT);
+    let prev = null, top = null, n;
+    while ((n = tw.nextNode())) for (let i = 0; i < n.length; i++) {
+      const ch = n.data[i];
+      if (ch === ' ') { prev = ch; continue; }
+      r.setStart(n, i); r.setEnd(n, i + 1);
+      const t = r.getBoundingClientRect().top;
+      if (top !== null && t > top + 5 && prev !== ' ' && prev !== '/' && prev !== '-') return prev + ' | ' + ch;
+      top = t; prev = ch;
+    }
+    return '';
+  })()`);
+  if (corte) throw new Error('El nombre del pueblo se parte a mitad de palabra: ' + corte);
   await clic('#btn-estadisticas');
   await captura('05-estadisticas');
   const racha = await js("JSON.parse(localStorage.getItem('pd.est')).racha");
